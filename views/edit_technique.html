@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование техники</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .edit-form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .edit-form-container h1 {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .current-photo {
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .current-photo img {
+            max-width: 200px;
+            border-radius: 5px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn-save {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn-save:hover {
+            background: #229954;
+        }
+        
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="nav-brand">🏫 Техникум</a>
+            <ul class="nav-menu">
+                <li><a href="/">Главная</a></li>
+                <li><a href="/about">О техникуме</a></li>
+                <li><a href="/contacts">Контакты</a></li>
+                <li><a href="/dashboard">Каталог</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="edit-form-container">
+        <h1>✏️ Редактирование техники</h1>
+        <form id="editForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Название *</label>
+                <input type="text" name="name" id="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Категория *</label>
+                <select name="category" id="category" required>
+                    <option value="">Выберите категорию</option>
+                    <option value="Электроника">Электроника</option>
+                    <option value="Механика">Механика</option>
+                    <option value="Программное обеспечение">Программное обеспечение</option>
+                    <option value="Оборудование">Оборудование</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea name="description" id="description" rows="4"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Цена *</label>
+                <input type="number" name="price" id="price" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Текущее фото</label>
+                <div class="current-photo" id="currentPhoto"></div>
+                <input type="hidden" name="existingPhoto" id="existingPhoto">
+            </div>
+            
+            <div class="form-group">
+                <label>Новое фото (оставьте пустым, если не хотите менять)</label>
+                <input type="file" name="photo" accept="image/*">
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-save">💾 Сохранить</button>
+                <a href="/dashboard" class="btn-cancel">❌ Отмена</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const techniqueId = window.location.pathname.split('/').pop();
+        
+        // Загружаем данные техники
+        fetch(`/api/techniques/${techniqueId}`)
+            .then(res => res.json())
+            .then(technique => {
+                document.getElementById('name').value = technique.name;
+                document.getElementById('category').value = technique.category;
+                document.getElementById('description').value = technique.description || '';
+                document.getElementById('price').value = technique.price;
+                document.getElementById('existingPhoto').value = technique.photo_url || '';
+                
+                if (technique.photo_url) {
+                    document.getElementById('currentPhoto').innerHTML = `
+                        <img src="${technique.photo_url}" alt="Текущее фото">
+                        <p><small>Текущее фото</small></p>
+                    `;
+                } else {
+                    document.getElementById('currentPhoto').innerHTML = '<p>Нет фото</p>';
+                }
+            })
+            .catch(err => {
+                alert('Ошибка загрузки данных');
+                window.location.href = '/dashboard';
+            });
+        
+        // Отправка формы
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            
+            const response = await fetch(`/api/techniques/${techniqueId}`, {
+                method: 'PUT',
+                body: formData
+            });
+            
+            if (response.ok) {
+                alert('✅ Техника успешно обновлена!');
+                window.location.href = '/dashboard';
+            } else {
+                const error = await response.json();
+                alert('❌ Ошибка: ' + (error.error || 'Неизвестная ошибка'));
+            }
+        });
+    </script>
+</body>
+</html>

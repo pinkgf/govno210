@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О техникуме</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .about-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .about-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .about-section {
+            padding: 60px 0;
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+        
+        .about-image {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .about-text h2 {
+            color: #2c3e50;
+            margin: 25px 0 15px 0;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        .about-text h2:first-child {
+            margin-top: 0;
+        }
+        
+        .about-text p {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .achievements {
+            background: #f8f9fa;
+            padding: 60px 0;
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .achievement-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .achievement-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .achievement-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .specialties {
+            padding: 60px 0;
+            background: white;
+        }
+        
+        .specialties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .specialty-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            border-left: 4px solid #3498db;
+        }
+        
+        .specialty-card:hover {
+            background: #3498db;
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .specialty-card:hover h3 {
+            color: white;
+        }
+        
+        .specialty-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+            .about-header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        .btn-primary {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="nav-brand">🏫 Техникум</a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/">Главная</a></li>
+                <li><a href="/about">О техникуме</a></li>
+                <li><a href="/contacts">Контакты</a></li>
+                <li><a href="/login" id="authLink" class="btn-login">Войти</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="about-header">
+        <div class="container">
+            <h1>О нашем техникуме</h1>
+            <p>История, достижения и миссия учебного заведения</p>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600" alt="Техникум" class="about-image">
+                <div class="about-text">
+                    <h2>📜 История</h2>
+                    <p>Техникум основан в 2000 году и за это время выпустил более 5000 квалифицированных специалистов. За годы работы мы зарекомендовали себя как одно из лучших учебных заведений в регионе.</p>
+                    
+                    <h2>🎯 Миссия</h2>
+                    <p>Подготовка конкурентоспособных специалистов, способных эффективно работать в условиях современной экономики и быстро адаптироваться к изменениям на рынке труда.</p>
+                    
+                    <h2>🌟 Наши ценности</h2>
+                    <p>Качество образования, практическая направленность обучения, индивидуальный подход к каждому студенту, современная материально-техническая база.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="achievements">
+        <div class="container">
+            <h2 style="text-align: center; color: #2c3e50;">Наши достижения</h2>
+            <div class="achievements-grid">
+                <div class="achievement-card">
+                    <div class="achievement-icon">🏆</div>
+                    <h3>Лучший техникум 2023</h3>
+                    <p>Победитель регионального конкурса "Лучшее учебное заведение"</p>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-icon">🤝</div>
+                    <h3>50+ партнеров</h3>
+                    <p>Сотрудничество с ведущими предприятиями региона</p>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-icon">📊</div>
+                    <h3>95% трудоустройства</h3>
+                    <p>Выпускники успешно работают по специальности</p>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-icon">🌍</div>
+                    <h3>Международное сотрудничество</h3>
+                    <p>Обмен опытом с зарубежными учебными заведениями</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="specialties">
+        <div class="container">
+            <h2 style="text-align: center; color: #2c3e50;">Популярные специальности</h2>
+            <div class="specialties-grid">
+                <div class="specialty-card">
+                    <h3>💻 Программирование</h3>
+                    <p>Разработка программного обеспечения, веб-технологии, базы данных</p>
+                </div>
+                <div class="specialty-card">
+                    <h3>🔧 Электромеханика</h3>
+                    <p>Обслуживание и ремонт электрооборудования, автоматизация</p>
+                </div>
+                <div class="specialty-card">
+                    <h3>📱 Сетевые технологии</h3>
+                    <p>Настройка сетей, системное администрирование, кибербезопасность</p>
+                </div>
+                <div class="specialty-card">
+                    <h3>🏗️ Строительство</h3>
+                    <p>Проектирование зданий, строительные технологии, управление проектами</p>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <a href="/login" id="ctaBtn" class="btn-primary">Поступить сейчас</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка авторизации и обновление навигации
+        fetch('/api/user')
+            .then(res => res.json())
+            .then(user => {
+                const authLink = document.getElementById('authLink');
+                const ctaBtn = document.getElementById('ctaBtn');
+                const navMenu = document.getElementById('navMenu');
+                
+                if (user && user.id) {
+                    authLink.textContent = '📁 Личный кабинет';
+                    authLink.href = '/dashboard';
+                    ctaBtn.textContent = 'Перейти в кабинет';
+                    ctaBtn.href = '/dashboard';
+                    
+                    if (user.role === 'admin') {
+                        const dbLink = document.createElement('li');
+                        dbLink.innerHTML = '<a href="/admin/db" style="background: #8e44ad; padding: 5px 10px; border-radius: 5px;">📊 Управление БД</a>';
+                        navMenu.appendChild(dbLink);
+                    }
+                }
+            })
+            .catch(() => console.log('Ошибка проверки авторизации'));
+    </script>
+</body>
+</html>

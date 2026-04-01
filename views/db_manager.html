@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление БД - Админ панель</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .db-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .db-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .tables-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        
+        .table-btn {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .table-btn:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .table-btn.active {
+            background: #3498db;
+            box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .table-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .data-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .table-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            color: #666;
+        }
+        
+        .btn-refresh {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .btn-refresh:hover {
+            background: #229954;
+        }
+        
+        .query-section {
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .query-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .query-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .query-result {
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow: auto;
+        }
+        
+        .btn-execute {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn-execute:hover {
+            background: #2980b9;
+        }
+        
+        .danger {
+            color: #e74c3c;
+        }
+        
+        .stats-card {
+            display: inline-block;
+            background: #ecf0f1;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="nav-brand">🏫 Техникум</a>
+            <ul class="nav-menu">
+                <li><a href="/">Главная</a></li>
+                <li><a href="/about">О техникуме</a></li>
+                <li><a href="/contacts">Контакты</a></li>
+                <li><a href="/dashboard">Каталог</a></li>
+                <li><a href="/admin/db" class="btn-login">📊 Управление БД</a></li>
+                <li><a href="#" id="logoutBtn">Выйти</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="db-container">
+        <div class="db-header">
+            <h1>📊 Управление базой данных</h1>
+            <p>Просмотр и управление таблицами MySQL</p>
+        </div>
+
+        <div class="tables-list" id="tablesList">
+            <div class="loading">Загрузка таблиц...</div>
+        </div>
+
+        <div class="table-container" id="tableContainer">
+            <div style="text-align: center; padding: 50px; color: #999;">
+                Выберите таблицу для просмотра
+            </div>
+        </div>
+
+        <div class="query-section">
+            <h3>🔧 Выполнить SQL запрос</h3>
+            <textarea id="sqlQuery" class="query-input" rows="4" placeholder="SELECT * FROM users LIMIT 10"></textarea>
+            <button onclick="executeQuery()" class="btn-execute">▶ Выполнить запрос</button>
+            <div id="queryResult" class="query-result"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentTable = null;
+        
+        // Проверка прав доступа
+        fetch('/api/user')
+            .then(res => res.json())
+            .then(user => {
+                if (!user || user.role !== 'admin') {
+                    alert('Доступ запрещен. Только для администратора');
+                    window.location.href = '/dashboard';
+                }
+                loadTables();
+            });
+        
+        // Загрузка списка таблиц
+        function loadTables() {
+            fetch('/api/admin/tables')
+                .then(res => res.json())
+                .then(tables => {
+                    const container = document.getElementById('tablesList');
+                    container.innerHTML = tables.map(table => `
+                        <button class="table-btn" onclick="loadTableData('${table}')">
+                            📋 ${table}
+                        </button>
+                    `).join('');
+                })
+                .catch(err => {
+                    document.getElementById('tablesList').innerHTML = '<div class="loading">❌ Ошибка загрузки таблиц</div>';
+                });
+        }
+        
+        // Загрузка данных таблицы
+        function loadTableData(tableName) {
+            currentTable = tableName;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.table-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(tableName)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Показываем загрузку
+            document.getElementById('tableContainer').innerHTML = '<div class="loading">Загрузка данных...</div>';
+            
+            // Загружаем данные таблицы
+            fetch(`/api/admin/table/${tableName}`)
+                .then(res => res.json())
+                .then(data => {
+                    displayTableData(tableName, data);
+                })
+                .catch(err => {
+                    document.getElementById('tableContainer').innerHTML = `
+                        <div class="loading danger">❌ Ошибка загрузки данных: ${err.message}</div>
+                    `;
+                });
+        }
+        
+        // Отображение данных таблицы
+        function displayTableData(tableName, data) {
+            if (!data.rows || data.rows.length === 0) {
+                document.getElementById('tableContainer').innerHTML = `
+                    <div class="table-title">📋 Таблица: ${tableName}</div>
+                    <div class="table-info">Таблица пуста</div>
+                `;
+                return;
+            }
+            
+            // Получаем колонки из первой строки
+            const columns = Object.keys(data.rows[0]);
+            
+            let html = `
+                <div class="table-title">📋 Таблица: ${tableName}</div>
+                <button onclick="loadTableData('${tableName}')" class="btn-refresh">🔄 Обновить</button>
+                <div class="table-info">
+                    📊 Всего записей: ${data.count} | 
+                    📝 Колонок: ${columns.length} |
+                    💾 Размер таблицы: ${data.size || 'неизвестно'}
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            ${columns.map(col => `<th>${escapeHtml(col)}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.rows.map(row => `
+                            <tr>
+                                ${columns.map(col => `<td>${formatValue(row[col])}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="table-info">
+                    Показано ${data.rows.length} из ${data.count} записей
+                </div>
+            `;
+            
+            document.getElementById('tableContainer').innerHTML = html;
+        }
+        
+        // Выполнение пользовательского SQL запроса
+        function executeQuery() {
+            const query = document.getElementById('sqlQuery').value;
+            
+            if (!query.trim()) {
+                alert('Введите SQL запрос');
+                return;
+            }
+            
+            // Предупреждение для опасных запросов
+            const dangerous = ['DROP', 'DELETE', 'TRUNCATE', 'ALTER', 'CREATE', 'UPDATE'];
+            const upperQuery = query.toUpperCase();
+            const isDangerous = dangerous.some(cmd => upperQuery.includes(cmd));
+            
+            if (isDangerous && !confirm('⚠️ Вы выполняете потенциально опасный запрос! Продолжить?')) {
+                return;
+            }
+            
+            document.getElementById('queryResult').innerHTML = '<div class="loading">Выполнение запроса...</div>';
+            
+            fetch('/api/admin/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('queryResult').innerHTML = `
+                        <div style="color: #e74c3c; padding: 10px;">
+                            ❌ Ошибка: ${escapeHtml(data.error)}
+                        </div>
+                    `;
+                } else if (data.affectedRows !== undefined) {
+                    document.getElementById('queryResult').innerHTML = `
+                        <div style="color: #27ae60; padding: 10px;">
+                            ✅ Запрос выполнен успешно!
+                            <br>Затронуто строк: ${data.affectedRows}
+                        </div>
+                    `;
+                    // Обновляем текущую таблицу если нужно
+                    if (currentTable) loadTableData(currentTable);
+                } else if (data.rows && data.rows.length > 0) {
+                    const columns = Object.keys(data.rows[0]);
+                    let resultHtml = `
+                        <div style="margin-top: 10px;">
+                            <strong>✅ Результат (${data.rows.length} записей):</strong>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    ${columns.map(col => `<th>${escapeHtml(col)}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.rows.map(row => `
+                                    <tr>
+                                        ${columns.map(col => `<td>${formatValue(row[col])}</td>`).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    document.getElementById('queryResult').innerHTML = resultHtml;
+                } else {
+                    document.getElementById('queryResult').innerHTML = `
+                        <div style="color: #3498db; padding: 10px;">
+                            ✅ Запрос выполнен успешно, но не вернул данных
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                document.getElementById('queryResult').innerHTML = `
+                    <div style="color: #e74c3c; padding: 10px;">
+                        ❌ Ошибка: ${escapeHtml(err.message)}
+                    </div>
+                `;
+            });
+        }
+        
+        function formatValue(value) {
+            if (value === null) return '<span style="color: #999;">NULL</span>';
+            if (value === undefined) return '<span style="color: #999;">-</span>';
+            if (typeof value === 'object') return JSON.stringify(value);
+            if (String(value).length > 100) return String(value).substring(0, 100) + '...';
+            return escapeHtml(String(value));
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            fetch('/api/logout').then(() => {
+                window.location.href = '/';
+            });
+        });
+        
+        // Примеры запросов
+        const examples = [
+            "SELECT * FROM users",
+            "SELECT * FROM techniques",
+            "SELECT COUNT(*) as total FROM users",
+            "SELECT role, COUNT(*) as count FROM users GROUP BY role"
+        ];
+        
+        // Добавляем примеры запросов
+        setTimeout(() => {
+            const examplesHtml = `
+                <div style="margin-top: 10px;">
+                    <small>📝 Примеры запросов: 
+                        ${examples.map(ex => `<a href="#" onclick="document.getElementById('sqlQuery').value='${ex}'; return false;">${ex}</a>`).join(' | ')}
+                    </small>
+                </div>
+            `;
+            document.querySelector('.query-section').insertAdjacentHTML('beforeend', examplesHtml);
+        }, 100);
+    </script>
+</body>
+</html>
